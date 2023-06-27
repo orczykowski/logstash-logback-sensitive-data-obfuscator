@@ -1,0 +1,22 @@
+<configuration>
+
+
+    <appender name="json" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">
+            <jsonFormatter
+                    class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter">
+                <prettyPrint>true</prettyPrint>
+            </jsonFormatter>
+            <timestampFormat>yyyy-MM-dd' 'HH:mm:ss.SSS</timestampFormat>
+        </layout>
+    </appender>
+
+    <logger name="io.orczykowski" level="debug" additivity="false">
+        <appender-ref ref="json"/>
+    </logger>
+
+    <root level="error">
+        <appender-ref ref="json"/>
+    </root>
+
+</configuration>
