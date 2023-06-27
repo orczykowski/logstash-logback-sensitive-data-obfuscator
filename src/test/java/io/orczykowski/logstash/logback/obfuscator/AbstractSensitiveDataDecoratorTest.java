@@ -2,6 +2,7 @@ package io.orczykowski.logstash.logback.obfuscator;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
@@ -21,12 +22,12 @@ class AbstractSensitiveDataDecoratorTest {
 
     @ParameterizedTest
     @NullAndEmptySource
-    void shouldThrowExceptionWhenTrySetPrefixAsNullOrBlank(final String prefix) {
+    void shouldThrowExceptionWhenTrySetCustomPatternAsNullOrBlank(final String prefix) {
         //given:
         final var expectedMessage = """
                 Pattern have to be complies with java regexp and have to contains place holder
                 [PROPERTY_NAME] where in log is sensitive value. The sensitive value must be a group in the sense of regular
-                expressions, i.e. it is surrounded by parentheses""";
+                expressions, it have to be  surrounded by parentheses""";
         //expect:
         var ex = assertThrows(IncorrectConfigurationException.class, () -> subject.addCustomPattern(prefix));
         assertEquals(expectedMessage, ex.getMessage());
@@ -40,10 +41,22 @@ class AbstractSensitiveDataDecoratorTest {
         //given:
         final var expectedMessage = """
                 Pattern have to be complies with java regexp and have to contains place holder
-                [PROPERTY_NAME] where in log is sensitive value. The sensitive value must be a group in the sense of regular
-                expressions, i.e. it is surrounded by parentheses""";
+                [PROPERTY_NAME] where in log is sensitive value. The sensitive value must be a group in the sense of regular 
+                expressions, it have to be  surrounded by parentheses""";
         //expect:
         var ex = assertThrows(IncorrectConfigurationException.class, () -> subject.addCustomPattern(incorrectPlaceHolder));
+        assertEquals(expectedMessage, ex.getMessage());
+    }
+
+
+    @Test
+    void shouldThrowExceptionWhenTryAddFieldNamesBeforePatterns() {
+        //given:
+        final var expectedMessage = """
+                There is no pattern to detecting sensitive data added yet.
+                Make sure the list of field names with sensitive fields is added after the patterns.""";
+        //expect:
+        var ex = assertThrows(IncorrectConfigurationException.class, () -> subject.addFieldName("something"));
         assertEquals(expectedMessage, ex.getMessage());
     }
 

@@ -1,0 +1,31 @@
+<configuration>
+    <appender name="mask" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <pattern>
+                    <pattern>
+                        {
+                        "msg": "%msg",
+                        "level": "%level"
+                        }
+                    </pattern>
+                    <omitEmptyFields>true</omitEmptyFields>
+                </pattern>
+            </providers>
+            <jsonGeneratorDecorator class="net.logstash.logback.mask.MaskingJsonGeneratorDecorator">
+                <valueMasker class="io.orczykowski.logstash.logback.obfuscator.SensitiveDataAsMaskDecorator">
+                    <mask>*SENSITIVE*DATA*</mask>
+                    <patternName>JSON</patternName>
+                    <patternName>EQUAL_AND_SQUARE_BRACKETS</patternName>
+                    <fieldName>firstName</fieldName>
+                    <fieldName>email</fieldName>
+                </valueMasker>
+            </jsonGeneratorDecorator>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="mask"/>
+    </root>
+
+</configuration>

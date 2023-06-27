@@ -22,7 +22,7 @@ class SensitiveDataAsMaskDecoratorTest {
         //given
         subject = new SensitiveDataAsMaskDecorator();
         //expect:
-        Assertions.assertThrows(IncorrectConfigurationException.class, () -> subject.setMask(null));
+        Assertions.assertThrows(IncorrectConfigurationException.class, () -> subject.addMask(null));
     }
 
     @Test
@@ -139,7 +139,7 @@ class SensitiveDataAsMaskDecoratorTest {
         // given:
         var customMask = "xxxxxx";
         subject = new SensitiveDataAsMaskDecorator();
-        subject.setMask(customMask);
+        subject.addMask(customMask);
         subject.addPatternName(JSON.name());
         addSensitiveFields();
         var log = asJson(Map.of(

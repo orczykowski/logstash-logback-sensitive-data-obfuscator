@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 public class SensitiveDataAsMaskDecorator extends AbstractSensitiveDataDecorator {
     private String mask = "********";
 
-    public void setMask(final String mask) {
+    public void addMask(final String mask) {
         if (Objects.isNull(mask)) {
             throw new IncorrectConfigurationException("Mask cannot be set as null");
         }

@@ -1,9 +1,8 @@
 package io.orczykowski.logstash.logback.obfuscator;
 
 import java.util.Arrays;
-import java.util.Set;
+import java.util.List;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 class SensitiveDataPatternFactory {
     static final String PROPERTY_NAME_MARKER = "[PROPERTY_NAME]";
@@ -20,9 +19,8 @@ class SensitiveDataPatternFactory {
         EQUAL_AND_DOUBLE_QUOTES("[PROPERTY_NAME]=\"([^\"]+)\"");
         private final String patternTemplate;
 
-        private static final Set<String> names = Arrays.stream(values())
-                .map(Enum::name)
-                .collect(Collectors.toUnmodifiableSet());
+        private static final List<String> names = Arrays.stream(values())
+                .map(Enum::name).toList();
 
         SensitiveValuePatterns(final String pattern) {
             this.patternTemplate = pattern;
@@ -34,6 +32,10 @@ class SensitiveDataPatternFactory {
 
         String getPatternTemplate() {
             return patternTemplate;
+        }
+
+        static List<String> getSensitivePatternsNames() {
+            return names;
         }
     }
 }

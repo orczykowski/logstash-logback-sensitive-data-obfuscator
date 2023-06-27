@@ -9,16 +9,20 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static io.orczykowski.logstash.logback.obfuscator.IncorrectConfigurationException.incorrectPatternException;
 import static io.orczykowski.logstash.logback.obfuscator.SensitiveDataPatternFactory.PROPERTY_NAME_MARKER;
 import static java.util.Objects.isNull;
 
-abstract class AbstractSensitiveDataDecorator implements ValueMasker {
+public abstract class AbstractSensitiveDataDecorator implements ValueMasker {
     private static final SensitiveDataPatternFactory patternFactory = new SensitiveDataPatternFactory();
     protected Set<String> patterns = new HashSet<>();
     protected Set<Pattern> sensitiveFieldNamePatterns = new HashSet<>();
 
     public void addFieldName(final String fieldName) {
+        if (patterns.isEmpty()) {
+            throw new IncorrectConfigurationException("""
+                    There is no pattern to detecting sensitive data added yet.
+                    Make sure the list of field names with sensitive fields is added after the patterns.""");
+        }
         final var patterns = asPropertyNamePatterns(fieldName);
         sensitiveFieldNamePatterns.addAll(patterns);
     }
@@ -32,16 +36,21 @@ abstract class AbstractSensitiveDataDecorator implements ValueMasker {
     }
 
     public void addPatternName(final String predefinedPatternName) {
-        if (isBlank(predefinedPatternName) || SensitiveValuePatterns.isValidName(predefinedPatternName)) {
-            throw IncorrectConfigurationException.incorrectPredefinedPatternNameException();
+        if (validatePatternName(predefinedPatternName)) {
+            final var sensitivePatternsNames = String.join(",", SensitiveValuePatterns.getSensitivePatternsNames());
+            throw new IncorrectConfigurationException("Unknown name. You can use the following predefined pattern names [%s]"
+                    .formatted(sensitivePatternsNames));
         }
         final var pattern = SensitiveValuePatterns.valueOf(predefinedPatternName).getPatternTemplate();
         this.patterns.add(pattern);
     }
 
     public void addCustomPattern(final String pattern) {
-        if (isBlank(pattern) || notContainMarker(pattern)) {
-            throw incorrectPatternException();
+        if (validatePattern(pattern)) {
+            throw new IncorrectConfigurationException("""
+                    Pattern have to be complies with java regexp and have to contains place holder
+                    %s where in log is sensitive value. The sensitive value must be a group in the sense of regular 
+                    expressions, it have to be  surrounded by parentheses""".formatted(PROPERTY_NAME_MARKER));
         }
         this.patterns.add(pattern);
     }
@@ -52,6 +61,14 @@ abstract class AbstractSensitiveDataDecorator implements ValueMasker {
         return patterns.stream()
                 .map(pattern -> patternFactory.create(propertyName, pattern))
                 .collect(Collectors.toUnmodifiableSet());
+    }
+
+    private boolean validatePattern(final String pattern) {
+        return isBlank(pattern) || notContainMarker(pattern);
+    }
+
+    private boolean validatePatternName(final String predefinedPatternName) {
+        return isBlank(predefinedPatternName) || SensitiveValuePatterns.isValidName(predefinedPatternName);
     }
 
     private static boolean notContainMarker(final String pattern) {
