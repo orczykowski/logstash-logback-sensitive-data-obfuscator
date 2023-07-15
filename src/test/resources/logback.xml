@@ -13,7 +13,7 @@
                 </pattern>
             </providers>
             <jsonGeneratorDecorator class="net.logstash.logback.mask.MaskingJsonGeneratorDecorator">
-                <valueMasker class="io.orczykowski.logstash.logback.obfuscator.SensitiveDataAsMaskDecorator">
+                <valueMasker class="io.github.orczykowski.logstash.logback.obfuscator.SensitiveDataAsMaskDecorator">
                     <mask>*SENSITIVE*DATA*</mask>
                     <patternName>JSON</patternName>
                     <patternName>EQUAL_AND_SQUARE_BRACKETS</patternName>

@@ -47,7 +47,7 @@ For more information, please refer to the configuration section.
 ```xml
 
 <dependency>
-    <groupId>io.orczykowski.logback</groupId>
+    <groupId>io.github.orczykowski</groupId>
     <artifactId>logstash-logback-sensitive-data-obfuscator</artifactId>
     <version>1.0.0</version>
 </dependency>
@@ -58,8 +58,8 @@ For more information, please refer to the configuration section.
 ```xml example
 
 <jsonGeneratorDecorator class="net.logstash.logback.mask.MaskingJsonGeneratorDecorator">
-    <valueMasker class="io.orczykowski.logstash.logback.obfuscator.SensitiveDataAsShortcutDecorator">
-    </valueMasker>
+  <valueMasker class="io.github.orczykowski.logstash.logback.obfuscator.SensitiveDataAsShortcutDecorator">
+  </valueMasker>
 </jsonGeneratorDecorator>
 ```
 
@@ -67,8 +67,8 @@ For more information, please refer to the configuration section.
 
 ```xml
 
-<valueMasker class="io.orczykowski.logstash.logback.obfuscator.SensitiveDataAsShortcutDecorator">
-    <patternName>JSON</patternName>
+<valueMasker class="io.github.orczykowski.logstash.logback.obfuscator.SensitiveDataAsShortcutDecorator">
+  <patternName>JSON</patternName>
 </valueMasker>
 ```
 
@@ -76,9 +76,9 @@ For more information, please refer to the configuration section.
 
 ```xml
 
-<valueMasker class="io.orczykowski.logstash.logback.obfuscator.SensitiveDataAsShortcutDecorator">
-    <patternName>JSON</patternName>
-    <fieldName>email</fieldName>
+<valueMasker class="io.github.orczykowski.logstash.logback.obfuscator.SensitiveDataAsShortcutDecorator">
+  <patternName>JSON</patternName>
+  <fieldName>email</fieldName>
 </valueMasker>
 ```
 
@@ -87,33 +87,33 @@ _Example configuration:_
 ```xml
 
 <configuration>
-    <appender name="mask" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
-            <providers>
-                <pattern>
-                    <pattern>
-                        {
-                        "msg": "%msg",
-                        "level": "%level"
-                        }
-                    </pattern>
-                    <omitEmptyFields>true</omitEmptyFields>
-                </pattern>
-            </providers>
-            <jsonGeneratorDecorator class="net.logstash.logback.mask.MaskingJsonGeneratorDecorator">
-                <valueMasker class="io.orczykowski.logstash.logback.obfuscator.SensitiveDataAsShortcutDecorator">
-                    <patternName>JSON</patternName>
-                    <patternName>EQUAL_AND_SQUARE_BRACKETS</patternName>
-                    <fieldName>firstName</fieldName>
-                    <fieldName>email</fieldName>
-                </valueMasker>
-            </jsonGeneratorDecorator>
-        </encoder>
-    </appender>
+  <appender name="mask" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+      <providers>
+        <pattern>
+          <pattern>
+            {
+            "msg": "%msg",
+            "level": "%level"
+            }
+          </pattern>
+          <omitEmptyFields>true</omitEmptyFields>
+        </pattern>
+      </providers>
+      <jsonGeneratorDecorator class="net.logstash.logback.mask.MaskingJsonGeneratorDecorator">
+        <valueMasker class="io.github.orczykowski.logstash.logback.obfuscator.SensitiveDataAsShortcutDecorator">
+          <patternName>JSON</patternName>
+          <patternName>EQUAL_AND_SQUARE_BRACKETS</patternName>
+          <fieldName>firstName</fieldName>
+          <fieldName>email</fieldName>
+        </valueMasker>
+      </jsonGeneratorDecorator>
+    </encoder>
+  </appender>
 
-    <root level="INFO">
-        <appender-ref ref="mask"/>
-    </root>
+  <root level="INFO">
+    <appender-ref ref="mask"/>
+  </root>
 
 </configuration>
 ```

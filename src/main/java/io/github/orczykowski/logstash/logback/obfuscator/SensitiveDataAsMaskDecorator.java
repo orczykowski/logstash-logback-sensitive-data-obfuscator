@@ -1,4 +1,4 @@
-package io.orczykowski.logstash.logback.obfuscator;
+package io.github.orczykowski.logstash.logback.obfuscator;
 
 import java.util.Objects;
 import java.util.regex.MatchResult;

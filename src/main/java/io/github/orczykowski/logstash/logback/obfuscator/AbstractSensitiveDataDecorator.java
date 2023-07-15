@@ -1,7 +1,6 @@
-package io.orczykowski.logstash.logback.obfuscator;
+package io.github.orczykowski.logstash.logback.obfuscator;
 
 import com.fasterxml.jackson.core.JsonStreamContext;
-import io.orczykowski.logstash.logback.obfuscator.SensitiveDataPatternFactory.SensitiveValuePatterns;
 import net.logstash.logback.mask.ValueMasker;
 
 import java.util.HashSet;
@@ -9,7 +8,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static io.orczykowski.logstash.logback.obfuscator.SensitiveDataPatternFactory.PROPERTY_NAME_MARKER;
 import static java.util.Objects.isNull;
 
 public abstract class AbstractSensitiveDataDecorator implements ValueMasker {
@@ -37,11 +35,11 @@ public abstract class AbstractSensitiveDataDecorator implements ValueMasker {
 
     public void addPatternName(final String predefinedPatternName) {
         if (validatePatternName(predefinedPatternName)) {
-            final var sensitivePatternsNames = String.join(",", SensitiveValuePatterns.getSensitivePatternsNames());
+            final var sensitivePatternsNames = String.join(",", SensitiveDataPatternFactory.SensitiveValuePatterns.getSensitivePatternsNames());
             throw new IncorrectConfigurationException("Unknown name. You can use the following predefined pattern names [%s]"
                     .formatted(sensitivePatternsNames));
         }
-        final var pattern = SensitiveValuePatterns.valueOf(predefinedPatternName).getPatternTemplate();
+        final var pattern = SensitiveDataPatternFactory.SensitiveValuePatterns.valueOf(predefinedPatternName).getPatternTemplate();
         this.patterns.add(pattern);
     }
 
@@ -50,7 +48,7 @@ public abstract class AbstractSensitiveDataDecorator implements ValueMasker {
             throw new IncorrectConfigurationException("""
                     Pattern have to be complies with java regexp and have to contains place holder
                     %s where in log is sensitive value. The sensitive value must be a group in the sense of regular 
-                    expressions, it have to be  surrounded by parentheses""".formatted(PROPERTY_NAME_MARKER));
+                    expressions, it have to be  surrounded by parentheses""".formatted(SensitiveDataPatternFactory.PROPERTY_NAME_MARKER));
         }
         this.patterns.add(pattern);
     }
@@ -68,11 +66,11 @@ public abstract class AbstractSensitiveDataDecorator implements ValueMasker {
     }
 
     private boolean validatePatternName(final String predefinedPatternName) {
-        return isBlank(predefinedPatternName) || SensitiveValuePatterns.isValidName(predefinedPatternName);
+        return isBlank(predefinedPatternName) || SensitiveDataPatternFactory.SensitiveValuePatterns.isValidName(predefinedPatternName);
     }
 
     private static boolean notContainMarker(final String pattern) {
-        return !pattern.contains(PROPERTY_NAME_MARKER);
+        return !pattern.contains(SensitiveDataPatternFactory.PROPERTY_NAME_MARKER);
     }
 
     private static boolean isBlank(final String str) {

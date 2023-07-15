@@ -1,7 +1,6 @@
-package io.orczykowski.logstash.logback.obfuscator;
+package io.github.orczykowski.logstash.logback.obfuscator;
 
 import org.json.JSONObject;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
@@ -9,27 +8,18 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import java.util.Map;
 import java.util.Set;
 
-import static io.orczykowski.logstash.logback.obfuscator.SensitiveDataPatternFactory.SensitiveValuePatterns.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class SensitiveDataAsMaskDecoratorTest {
+class SensitiveDataAsShortcutDecoratorTest {
     private static final Set<String> SENSITIVE_FIELDS = Set.of("firstName", "idCardNumber", "mobilePhone", "other");
 
-    SensitiveDataAsMaskDecorator subject;
-
-    @Test
-    void shouldThrowExceptionWhenTrySetMaskAsNull() {
-        //given
-        subject = new SensitiveDataAsMaskDecorator();
-        //expect:
-        Assertions.assertThrows(IncorrectConfigurationException.class, () -> subject.addMask(null));
-    }
+    SensitiveDataAsShortcutDecorator subject;
 
     @Test
     void shouldMaskSensitiveDataWhenValuesAreInSquareBrackets() {
         // given:
-        subject = new SensitiveDataAsMaskDecorator();
-        subject.addPatternName(EQUAL_AND_SQUARE_BRACKETS.name());
+        subject = new SensitiveDataAsShortcutDecorator();
+        subject.addPatternName(SensitiveDataPatternFactory.SensitiveValuePatterns.EQUAL_AND_SQUARE_BRACKETS.name());
         addSensitiveFields();
 
         var log = """
@@ -46,9 +36,9 @@ class SensitiveDataAsMaskDecoratorTest {
         // then:
         var expectedLogWithMaskedSensitiveData = """
                 This is log with sensitive data: 
-                firstName=[********], 
-                idCardNumber=[********]
-                mobilePhone=[********]
+                firstName=[G-6-w], 
+                idCardNumber=[C-8-6]
+                mobilePhone=[+-12-3]
                 description=[something]
                 other=(sth)""";
         assertEquals(expectedLogWithMaskedSensitiveData, computedMaskLog);
@@ -57,8 +47,8 @@ class SensitiveDataAsMaskDecoratorTest {
     @Test
     void shouldMaskSensitiveDataWhenValuesAreInNormalBrackets() {
         // given:
-        subject = new SensitiveDataAsMaskDecorator();
-        subject.addPatternName(EQUAL_AND_BRACKETS.name());
+        subject = new SensitiveDataAsShortcutDecorator();
+        subject.addPatternName(SensitiveDataPatternFactory.SensitiveValuePatterns.EQUAL_AND_BRACKETS.name());
         addSensitiveFields();
         var log = """
                 This is log with sensitive data: 
@@ -74,9 +64,9 @@ class SensitiveDataAsMaskDecoratorTest {
         // then:
         var expectedLogWithMaskedSensitiveData = """
                 This is log with sensitive data: 
-                firstName=(********)
-                idCardNumber=(********)
-                mobilePhone=(********)
+                firstName=(G-6-w)
+                idCardNumber=(C-8-6)
+                mobilePhone=(+-12-3)
                 description=(something)
                 other=[sth]""";
         assertEquals(expectedLogWithMaskedSensitiveData, computedMaskLog);
@@ -85,8 +75,8 @@ class SensitiveDataAsMaskDecoratorTest {
     @Test
     void shouldMaskSensitiveDataWhenValuesAreInDoubleQuotes() {
         // given:
-        subject = new SensitiveDataAsMaskDecorator();
-        subject.addPatternName(EQUAL_AND_DOUBLE_QUOTES.name());
+        subject = new SensitiveDataAsShortcutDecorator();
+        subject.addPatternName(SensitiveDataPatternFactory.SensitiveValuePatterns.EQUAL_AND_DOUBLE_QUOTES.name());
         addSensitiveFields();
         var log = """
                 This is log with sensitive data: 
@@ -102,9 +92,9 @@ class SensitiveDataAsMaskDecoratorTest {
         // then:
         var expectedLogWithMaskedSensitiveData = """
                 This is log with sensitive data: 
-                firstName="********"
-                idCardNumber="********"
-                mobilePhone="********"
+                firstName="G-6-w"
+                idCardNumber="C-8-6"
+                mobilePhone="+-12-3"
                 description="something"
                 other=[sth]""";
         assertEquals(expectedLogWithMaskedSensitiveData, computedMaskLog);
@@ -113,8 +103,8 @@ class SensitiveDataAsMaskDecoratorTest {
     @Test
     void shouldMaskSensitiveDataValuesInJson() {
         // given:
-        subject = new SensitiveDataAsMaskDecorator();
-        subject.addPatternName(JSON.name());
+        subject = new SensitiveDataAsShortcutDecorator();
+        subject.addPatternName(SensitiveDataPatternFactory.SensitiveValuePatterns.JSON.name());
         addSensitiveFields();
         var log = asJson(Map.of(
                 "firstName", "Gustaw",
@@ -127,38 +117,18 @@ class SensitiveDataAsMaskDecoratorTest {
 
         // then:
         var expectedLogWithMaskedSensitiveData = asJson(Map.of(
-                "firstName", "********",
-                "idCardNumber", "********",
-                "mobilePhone", "********",
+                "firstName", "G-6-w",
+                "idCardNumber", "C-8-6",
+                "mobilePhone", "+-12-3",
                 "nonSensitive", "test"));
-        assertEquals(expectedLogWithMaskedSensitiveData, computedMaskLog);
-    }
-
-    @Test
-    void shouldUseCustomMask() {
-        // given:
-        var customMask = "xxxxxx";
-        subject = new SensitiveDataAsMaskDecorator();
-        subject.addMask(customMask);
-        subject.addPatternName(JSON.name());
-        addSensitiveFields();
-        var log = asJson(Map.of(
-                "firstName", "Gustaw"));
-
-        // when:
-        var computedMaskLog = (String) subject.mask(null, log);
-
-        // then:
-        var expectedLogWithMaskedSensitiveData = asJson(Map.of(
-                "firstName", customMask));
         assertEquals(expectedLogWithMaskedSensitiveData, computedMaskLog);
     }
 
     @Test
     void shouldMaskNestedSensitiveDataValuesInJson() {
         // given:
-        subject = new SensitiveDataAsMaskDecorator();
-        subject.addPatternName(JSON.name());
+        subject = new SensitiveDataAsShortcutDecorator();
+        subject.addPatternName(SensitiveDataPatternFactory.SensitiveValuePatterns.JSON.name());
         addSensitiveFields();
         var log = asJson(Map.of(
                 "personalData", Map.of(
@@ -174,10 +144,10 @@ class SensitiveDataAsMaskDecoratorTest {
         // then:
         var expectedLogWithMaskedSensitiveData = asJson(Map.of(
                 "personalData", Map.of(
-                        "firstName", "********",
-                        "idCardNumber", "********"),
+                        "firstName", "G-6-w",
+                        "idCardNumber", "C-8-6"),
                 "contactInfo", Map.of(
-                        "mobilePhone", "********"),
+                        "mobilePhone", "+-12-3"),
                 "nonSensitive", "test"));
         assertEquals(expectedLogWithMaskedSensitiveData, computedMaskLog);
     }
@@ -185,8 +155,8 @@ class SensitiveDataAsMaskDecoratorTest {
     @Test
     void shouldIgnoreValueWhenHasNoDecoration() {
         // given:
-        subject = new SensitiveDataAsMaskDecorator();
-        subject.addPatternName(EQUAL_AND_SQUARE_BRACKETS.name());
+        subject = new SensitiveDataAsShortcutDecorator();
+        subject.addPatternName(SensitiveDataPatternFactory.SensitiveValuePatterns.EQUAL_AND_SQUARE_BRACKETS.name());
         addSensitiveFields();
 
         var logMessage = """
@@ -203,7 +173,7 @@ class SensitiveDataAsMaskDecoratorTest {
     @Test
     void shouldMaskDataUsingCustomPattern() {
         // given:
-        subject = new SensitiveDataAsMaskDecorator();
+        subject = new SensitiveDataAsShortcutDecorator();
         subject.addCustomPattern("[PROPERTY_NAME]==>'([^']+)'");
         addSensitiveFields();
 
@@ -221,9 +191,9 @@ class SensitiveDataAsMaskDecoratorTest {
         // then:
         var expectedLogWithMaskedSensitiveData = """
                 This is log with sensitive data: 
-                firstName==>'********'
-                idCardNumber==>'********'
-                mobilePhone==>'********'
+                firstName==>'G-6-w'
+                idCardNumber==>'C-8-6'
+                mobilePhone==>'+-12-3'
                 description==>'something'
                 other=[sth]""";
         assertEquals(expectedLogWithMaskedSensitiveData, computedMaskLog);
@@ -231,10 +201,10 @@ class SensitiveDataAsMaskDecoratorTest {
 
     @Test
     void shouldMaskSensitiveDataWithAllAddedPatterns() {
-        subject = new SensitiveDataAsMaskDecorator();
-        subject.addPatternName(JSON.name());
-        subject.addPatternName(EQUAL_AND_SQUARE_BRACKETS.name());
-        subject.addPatternName(EQUAL_AND_BRACKETS.name());
+        subject = new SensitiveDataAsShortcutDecorator();
+        subject.addPatternName(SensitiveDataPatternFactory.SensitiveValuePatterns.JSON.name());
+        subject.addPatternName(SensitiveDataPatternFactory.SensitiveValuePatterns.EQUAL_AND_SQUARE_BRACKETS.name());
+        subject.addPatternName(SensitiveDataPatternFactory.SensitiveValuePatterns.EQUAL_AND_BRACKETS.name());
         addSensitiveFields();
 
         //and:
@@ -249,10 +219,10 @@ class SensitiveDataAsMaskDecoratorTest {
 
         // then:
         var expectedLogWithMaskedSensitiveData = """
-                payload={"firstName":"********"}
-                mobilePhone=(********)
+                payload={"firstName":"G-6-w"}
+                mobilePhone=(+-6-3)
                 description="something"
-                other=[********]""";
+                other=[s-5-h]""";
         assertEquals(expectedLogWithMaskedSensitiveData, computedMaskLog);
     }
 
@@ -260,8 +230,8 @@ class SensitiveDataAsMaskDecoratorTest {
     @NullAndEmptySource
     void shouldIgnoreNullEndEmptyString(String str) {
         //given:
-        subject = new SensitiveDataAsMaskDecorator();
-        subject.addPatternName(EQUAL_AND_SQUARE_BRACKETS.name());
+        subject = new SensitiveDataAsShortcutDecorator();
+        subject.addPatternName(SensitiveDataPatternFactory.SensitiveValuePatterns.EQUAL_AND_SQUARE_BRACKETS.name());
         addSensitiveFields();
 
         //when:
@@ -270,6 +240,7 @@ class SensitiveDataAsMaskDecoratorTest {
         //then:
         assertEquals(str, result);
     }
+
 
     private void addSensitiveFields() {
         SENSITIVE_FIELDS.forEach(subject::addFieldName);
