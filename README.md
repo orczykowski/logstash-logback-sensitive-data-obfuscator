@@ -40,6 +40,10 @@ can be converted to:
 
 For more information, please refer to the configuration section.
 
+## Requirements
+
+- Java 25+
+
 ## How to use
 
 1. Add the following dependency to your POM file:
@@ -141,11 +145,22 @@ mandatory. For the SensitiveDataAsMaskDecorator, you can define a custom mask, b
 
 ## How to contribute
 
-### Hot to verify
+### How to verify
 
 - run tests `mvn test`
 - run mutation tests `mvn test-compile org.pitest:pitest-maven:mutationCoverage`
 - build `mvn install -DcreateChecksum=true`
+
+## Support
+
+If you like this library and it helps you in your projects, I would really appreciate your support.
+
+Maintaining open source takes time, and your support helps keep this project alive and improving.
+
+<a href="https://buymeacoffee.com/tasior" target="_blank">
+  <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" width="217" height="60">
+</a>
+
 
 ### [MIT License](https://opensource.org/licenses/MIT)
 
