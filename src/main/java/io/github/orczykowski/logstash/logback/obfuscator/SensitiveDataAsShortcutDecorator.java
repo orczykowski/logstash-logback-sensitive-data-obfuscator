@@ -11,7 +11,7 @@ public class SensitiveDataAsShortcutDecorator extends AbstractSensitiveDataDecor
     protected String maskLogMessage(final String logMessage) {
         var stringBuilder = new StringBuilder(logMessage);
         sensitiveFieldNamePatterns.stream()
-                .map(pattern -> pattern.matcher(stringBuilder))
+                .map(pattern -> matcherWithTimeout(pattern, stringBuilder))
                 .map(Matcher::results)
                 .map(Stream::toList)
                 .flatMap(Collection::stream)

@@ -17,7 +17,7 @@ public class SensitiveDataAsMaskDecorator extends AbstractSensitiveDataDecorator
     protected String maskLogMessage(final String logMessage) {
         var maskedMessage = logMessage;
         for (final Pattern pattern : sensitiveFieldNamePatterns) {
-            var matcher = pattern.matcher(maskedMessage);
+            var matcher = matcherWithTimeout(pattern, maskedMessage);
             maskedMessage = matcher.replaceAll(this::maskSensitiveData);
         }
         return maskedMessage;

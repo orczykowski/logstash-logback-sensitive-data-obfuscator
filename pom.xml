@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.orczykowski</groupId>
     <artifactId>logstash-logback-sensitive-data-obfuscator</artifactId>
-    <version>1.0.0</version>
+    <version>2.0.0</version>
     <packaging>jar</packaging>
     <name>logstash-logback-sensitive-data-obfuscator</name>
     <url>http://maven.apache.org</url>

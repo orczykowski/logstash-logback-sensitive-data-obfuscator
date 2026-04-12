@@ -76,6 +76,32 @@ class AbstractSensitiveDataDecoratorTest {
         Assertions.assertEquals("Unknown name. You can use the following predefined pattern names [JSON,EQUAL_AND_SQUARE_BRACKETS,EQUAL_AND_BRACKETS,EQUAL_AND_DOUBLE_QUOTES]", ex.getMessage());
     }
 
+    @Test
+    void shouldHaveDefaultRegexTimeout() {
+        assertEquals(AbstractSensitiveDataDecorator.DEFAULT_REGEX_TIMEOUT_MILLIS, subject.getRegexTimeoutMillis());
+    }
+
+    @Test
+    void shouldSetCustomRegexTimeout() {
+        subject.addRegexTimeoutMillis(1000);
+
+        assertEquals(1000, subject.getRegexTimeoutMillis());
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {0, -2, -100})
+    void shouldThrowExceptionWhenRegexTimeoutIsInvalid(int timeout) {
+        var ex = assertThrows(IncorrectConfigurationException.class, () -> subject.addRegexTimeoutMillis(timeout));
+        assertEquals("Regex timeout must be a positive value or -1 (no timeout), got: " + timeout, ex.getMessage());
+    }
+
+    @Test
+    void shouldAcceptMinusOneAsNoTimeout() {
+        subject.addRegexTimeoutMillis(-1);
+
+        assertEquals(-1, subject.getRegexTimeoutMillis());
+    }
+
     static class TestImplementationSensitiveDataTextDecoratorTest extends AbstractSensitiveDataDecorator {
         @Override
         protected String maskLogMessage(final String str) {
