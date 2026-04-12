@@ -5,15 +5,36 @@ import net.logstash.logback.mask.ValueMasker;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 
 public abstract class AbstractSensitiveDataDecorator implements ValueMasker {
+    static final int DEFAULT_REGEX_TIMEOUT_MILLIS = 500;
     private static final SensitiveDataPatternFactory patternFactory = new SensitiveDataPatternFactory();
     protected Set<String> patterns = new HashSet<>();
     protected Set<Pattern> sensitiveFieldNamePatterns = new HashSet<>();
+    private int regexTimeoutMillis = DEFAULT_REGEX_TIMEOUT_MILLIS;
+
+    public void addRegexTimeoutMillis(final int timeoutMillis) {
+        if (timeoutMillis == 0 || timeoutMillis < -1) {
+            throw new IncorrectConfigurationException("Regex timeout must be a positive value or -1 (no timeout), got: " + timeoutMillis);
+        }
+        this.regexTimeoutMillis = timeoutMillis;
+    }
+
+    protected int getRegexTimeoutMillis() {
+        return regexTimeoutMillis;
+    }
+
+    protected Matcher matcherWithTimeout(final Pattern pattern, final CharSequence input) {
+        if (regexTimeoutMillis == TimeoutRegexCharSequence.NO_TIMEOUT) {
+            return pattern.matcher(input);
+        }
+        return new TimeoutRegexCharSequence(input, regexTimeoutMillis, pattern).matcher();
+    }
 
     public void addFieldName(final String fieldName) {
         if (patterns.isEmpty()) {

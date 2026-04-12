@@ -270,6 +270,41 @@ class SensitiveDataAsMaskDecoratorTest {
         assertEquals(str, result);
     }
 
+    @Test
+    void shouldMaskSensitiveDataWithNoTimeout() {
+        // given:
+        subject = new SensitiveDataAsMaskDecorator();
+        subject.addRegexTimeoutMillis(-1);
+        subject.addPatternName(SensitiveDataPatternFactory.SensitiveValuePatterns.EQUAL_AND_SQUARE_BRACKETS.name());
+        addSensitiveFields();
+
+        var log = "firstName=[Gustaw] idCardNumber=[CC123456]";
+
+        // when:
+        var computedMaskLog = (String) subject.mask(null, log);
+
+        // then:
+        assertEquals("firstName=[********] idCardNumber=[********]", computedMaskLog);
+    }
+
+    @Test
+    void shouldMaskSensitiveDataWithCustomTimeout() {
+        // given:
+        subject = new SensitiveDataAsMaskDecorator();
+        subject.addRegexTimeoutMillis(5000);
+        subject.addPatternName(SensitiveDataPatternFactory.SensitiveValuePatterns.JSON.name());
+        addSensitiveFields();
+
+        var log = asJson(Map.of("firstName", "Gustaw"));
+
+        // when:
+        var computedMaskLog = (String) subject.mask(null, log);
+
+        // then:
+        var expected = asJson(Map.of("firstName", "********"));
+        assertEquals(expected, computedMaskLog);
+    }
+
     private void addSensitiveFields() {
         SENSITIVE_FIELDS.forEach(subject::addFieldName);
     }
