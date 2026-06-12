@@ -1,21 +1,22 @@
 package io.github.orczykowski.logstash.logback.obfuscator;
 
-import com.fasterxml.jackson.core.JsonStreamContext;
 import net.logstash.logback.mask.ValueMasker;
+import tools.jackson.core.TokenStreamContext;
 
-import java.util.HashSet;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 
 public abstract class AbstractSensitiveDataDecorator implements ValueMasker {
     static final int DEFAULT_REGEX_TIMEOUT_MILLIS = 500;
     private static final SensitiveDataPatternFactory patternFactory = new SensitiveDataPatternFactory();
-    protected Set<String> patterns = new HashSet<>();
-    protected Set<Pattern> sensitiveFieldNamePatterns = new HashSet<>();
+
+    protected Set<String> patterns = new LinkedHashSet<>();
+    protected Set<Pattern> sensitiveFieldNamePatterns = new LinkedHashSet<>();
     private int regexTimeoutMillis = DEFAULT_REGEX_TIMEOUT_MILLIS;
 
     public void addRegexTimeoutMillis(final int timeoutMillis) {
@@ -47,7 +48,7 @@ public abstract class AbstractSensitiveDataDecorator implements ValueMasker {
     }
 
     @Override
-    public Object mask(final JsonStreamContext jsonStreamContext, final Object obj) {
+    public Object mask(final TokenStreamContext jsonStreamContext, final Object obj) {
         if (obj instanceof CharSequence seq) {
             return maskLogMessage((String) seq);
         }
@@ -76,10 +77,8 @@ public abstract class AbstractSensitiveDataDecorator implements ValueMasker {
 
     protected abstract String maskLogMessage(final String str);
 
-    private Set<Pattern> asPropertyNamePatterns(final String propertyName) {
-        return patterns.stream()
-                .map(pattern -> patternFactory.create(propertyName, pattern))
-                .collect(Collectors.toUnmodifiableSet());
+    private Collection<Pattern> asPropertyNamePatterns(final String propertyName) {
+        return patterns.stream().map(pattern -> patternFactory.create(propertyName, pattern)).toList();
     }
 
     private boolean validatePattern(final String pattern) {
@@ -97,5 +96,4 @@ public abstract class AbstractSensitiveDataDecorator implements ValueMasker {
     private static boolean isBlank(final String str) {
         return isNull(str) || str.isBlank();
     }
-
 }
