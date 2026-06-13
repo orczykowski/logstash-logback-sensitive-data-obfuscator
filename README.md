@@ -22,8 +22,8 @@ This library integrates with logstash-logback-encoder's `MaskingJsonGeneratorDec
 
 ## Requirements
 
-- Java 25 or higher
-- logstash-logback-encoder 7.x or higher
+- Java 17 or higher
+- logstash-logback-encoder 9.0 or higher
 
 ## Installation
 
@@ -33,14 +33,14 @@ This library integrates with logstash-logback-encoder's `MaskingJsonGeneratorDec
 <dependency>
     <groupId>io.github.orczykowski</groupId>
     <artifactId>logstash-logback-sensitive-data-obfuscator</artifactId>
-    <version>2.0.0</version>
+    <version>3.0.0</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```groovy
-implementation 'io.github.orczykowski:logstash-logback-sensitive-data-obfuscator:2.0.0'
+implementation 'io.github.orczykowski:logstash-logback-sensitive-data-obfuscator:3.0.0'
 ```
 
 ## Masking Strategies
@@ -91,7 +91,7 @@ Add a `valueMasker` to your `logback.xml` inside a `MaskingJsonGeneratorDecorato
                 </pattern>
             </providers>
 
-            <jsonGeneratorDecorator class="net.logstash.logback.mask.MaskingJsonGeneratorDecorator">
+            <decorator class="net.logstash.logback.mask.MaskingJsonGeneratorDecorator">
                 <valueMasker class="io.github.orczykowski.logstash.logback.obfuscator.SensitiveDataAsMaskDecorator">
                     <!-- Regex timeout protection (optional, default: 500ms) -->
                     <regexTimeoutMillis>500</regexTimeoutMillis>

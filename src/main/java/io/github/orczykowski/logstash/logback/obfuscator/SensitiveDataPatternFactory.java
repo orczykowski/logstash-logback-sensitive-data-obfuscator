@@ -26,7 +26,7 @@ class SensitiveDataPatternFactory {
             this.patternTemplate = pattern;
         }
 
-        static Boolean isValidName(final String str) {
+        static boolean isValidName(final String str) {
             return !names.contains(str);
         }
 

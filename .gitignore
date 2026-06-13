@@ -1,4 +1,26 @@
-/.idea/
-/target/
+# Maven
+target/
+pom.xml.*
+# IntelliJ IDEA
+.idea
+*.iml
+*.ipr
+*.iws
+# Eclipse
+.apt_generated/
+.classpath
+.externalToolBuilders/
+.factorypath
+.metadata/
+.packaging
+.project
+.settings/
+.springBeans
+*.jpage
+# macOS
 .DS_Store
+._*
+# Windows
+Thumbs.db
+# Misc.
 /sample-app/

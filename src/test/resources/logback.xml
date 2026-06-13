@@ -12,7 +12,7 @@
                     <omitEmptyFields>true</omitEmptyFields>
                 </pattern>
             </providers>
-            <jsonGeneratorDecorator class="net.logstash.logback.mask.MaskingJsonGeneratorDecorator">
+            <decorator class="net.logstash.logback.mask.MaskingJsonGeneratorDecorator">
                 <valueMasker class="io.github.orczykowski.logstash.logback.obfuscator.SensitiveDataAsMaskDecorator">
                     <mask>*SENSITIVE*DATA*</mask>
                     <patternName>JSON</patternName>
@@ -20,7 +20,7 @@
                     <fieldName>firstName</fieldName>
                     <fieldName>email</fieldName>
                 </valueMasker>
-            </jsonGeneratorDecorator>
+            </decorator>
         </encoder>
     </appender>
 
